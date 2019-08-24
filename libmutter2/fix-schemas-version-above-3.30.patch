@@ -1,0 +1,47 @@
+diff --git a/configure.ac b/configure.ac
+index e795159a1..e13292d48 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -417,11 +417,6 @@ fi
+ 
+ AM_CONDITIONAL(HAVE_SM, test "$found_sm" = "yes")
+ 
+-AC_PATH_PROG(ZENITY, zenity, no)
+-if test x"$ZENITY" = xno; then
+-  AC_MSG_ERROR([zenity not found in your path - needed for dialogs])
+-fi
+-
+ AC_ARG_ENABLE(debug,
+ 	[  --enable-debug		enable debugging],,
+ 	enable_debug=no)
+diff --git a/src/backends/meta-input-settings.c b/src/backends/meta-input-settings.c
+index fd3ba3dec..eed332825 100644
+--- a/src/backends/meta-input-settings.c
++++ b/src/backends/meta-input-settings.c
+@@ -824,7 +824,7 @@ meta_input_settings_find_monitor (MetaInputSettings   *input_settings,
+   gchar **edid;
+ 
+   priv = meta_input_settings_get_instance_private (input_settings);
+-  edid = g_settings_get_strv (settings, "display");
++  edid = g_settings_get_strv (settings, "output");
+   n_values = g_strv_length (edid);
+ 
+   if (n_values != 3)
+@@ -1122,7 +1122,7 @@ mapped_device_changed_cb (GSettings         *settings,
+                           const gchar       *key,
+                           DeviceMappingInfo *info)
+ {
+-  if (strcmp (key, "display") == 0)
++  if (strcmp (key, "output") == 0)
+     update_device_display (info->input_settings, settings, info->device);
+   else if (strcmp (key, "mapping") == 0)
+     update_tablet_mapping (info->input_settings, settings, info->device);
+@@ -1974,7 +1974,7 @@ meta_input_settings_cycle_tablet_output (MetaInputSettings  *input_settings,
+       edid[1] = "";
+       edid[2] = "";
+     }
+-  g_settings_set_strv (info->settings, "display", edid);
++  g_settings_set_strv (info->settings, "output", edid);
+ 
+   meta_display_show_tablet_mapping_notification (meta_get_display (),
+                                                  device, pretty_name);

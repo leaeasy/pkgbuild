@@ -1,0 +1,25 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+
+pkgname=libblockdev
+pkgver=2.22
+pkgrel=1
+pkgdesc="A library for manipulating block devices"
+arch=('x86_64')
+url="https://github.com/rhinstaller/libblockdev"
+license=('LGPL')
+depends=('parted' 'kmod' 'libyaml')
+makedepends=('autoconf-archive' 'gobject-introspection' 'systemd' 'python')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/rhinstaller/libblockdev/archive/$pkgver-1.tar.gz")
+sha512sums=('9991e5b776b4fe62b7f703753630e8ec4769c043047452d63de08d93f823b778179e4568b8b78c3963daf6219422afc9eb82bcc5b07b7f0a422162037b569e41')
+
+build() {
+  cd "$srcdir"/$pkgname-$pkgver-1
+  ./autogen.sh
+  ./configure --prefix=/usr --sysconfdir=/etc --without-lvm_dbus --without-dmraid --without-bcache --without-nvdimm --without-crypto --without-escrow --without-btrfs --without-vdo --without-tools --without-kbd --without-lvm --without-dm --without-lvm_dbus --without-mdraid --without-python2 --without-python3 --disable-introspection --without-gtk-doc
+  make
+}
+
+package() {
+  cd "$srcdir"/$pkgname-$pkgver-1
+  make DESTDIR="$pkgdir" install
+}

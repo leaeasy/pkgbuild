@@ -1,0 +1,66 @@
+# $Id$
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+# Maintainer: Andreas Radke <andyrtr@archlinux.org>
+
+pkgname=mesa
+pkgdesc="An open-source implementation of the OpenGL specification"
+pkgver=19.1.4
+pkgrel=1
+arch=('x86_64')
+makedepends=('libxml2' 'libx11' 'glproto' 'libdrm' 'dri2proto' 'dri3proto' 'presentproto' 
+             'libxshmfence' 'libxxf86vm' 'libxdamage' 'libvdpau' 'libva' 'wayland' 'wayland-protocols'
+             'libglvnd' 'libunwind' 
+             )
+url="https://www.mesa3d.org/"
+license=('custom')
+source=(https://mesa.freedesktop.org/archive/mesa-${pkgver}.tar.xz
+        LICENSE
+        0001-glvnd-fix-gl.pc.patch)
+sha512sums=('f6e5b81a80a309a36a04759d18364d3c71c48d1cb88f87b2f5432ef003092a22046e88ce2082031d5d52b60ba36f585d8df52e06ecc7a5158079936236f36887'
+            'f9f0d0ccf166fe6cb684478b6f1e1ab1f2850431c06aa041738563eb1808a004e52cdec823c103c9e180f03ffc083e95974d291353f0220fe52ae6d4897fecc7'
+            '2f40198eff47664c831c56e8a63f60a4d1b815cf697e6bdb0be39e6d9c5df043857f6264b7cd2ccf46c07626186c565144e80f4214b5f7936ef7024c47201437')
+
+build() {
+  arch-meson mesa-${pkgver} build \
+    -D b_lto=false \
+    -D b_ndebug=true \
+    -D platforms=x11,wayland,drm \
+    -D dri-drivers=i915,i965 \
+    -D gallium-drivers='' \
+    -D vulkan-drivers='' \
+    -D swr-arches=avx,avx2 \
+    -D dri3=true \
+    -D egl=true \
+    -D gbm=true \
+    -D gles1=true \
+    -D gles2=true \
+    -D glvnd=true \
+    -D glx=dri \
+    -D libunwind=true \
+    -D llvm=false \
+    -D lmsensors=true \
+    -D osmesa=none \
+    -D shared-glapi=true \
+    -D valgrind=false
+
+  # Print config
+  meson configure build
+  ninja -C build
+}
+
+package_mesa() {
+  depends=('libdrm' 'wayland' 'libxxf86vm' 'libxdamage' 'libxshmfence' 'libelf' 
+           'libunwind' 'libglvnd')
+  provides=('ati-dri' 'intel-dri' 'nouveau-dri' 'svga-dri' 'mesa-dri' 'mesa-libgl' 'opengl-driver')
+  conflicts=('ati-dri' 'intel-dri' 'nouveau-dri' 'svga-dri' 'mesa-dri' 'mesa-libgl')
+  replaces=('ati-dri' 'intel-dri' 'nouveau-dri' 'svga-dri' 'mesa-dri' 'mesa-libgl')
+  backup=('etc/drirc')
+
+  DESTDIR=${pkgdir} ninja -C build install
+
+  # in libglvnd
+  rm -fv ${pkgdir}/usr/lib/libGLESv{1_CM,2}.so*
+  
+  # indirect rendering
+  ln -s /usr/lib/libGLX_mesa.so.0 "${pkgdir}/usr/lib/libGLX_indirect.so.0"
+}

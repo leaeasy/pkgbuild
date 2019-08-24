@@ -1,0 +1,70 @@
+pkgname=ffmpeg
+pkgver=4.2
+pkgrel=7
+epoch=1
+pkgdesc='Complete solution to record, convert and stream audio and video'
+arch=('x86_64')
+url='http://ffmpeg.org/'
+license=('GPL3')
+depends=('alsa-lib' 'bzip2' 'fontconfig' 'fribidi' 'glibc' 'gmp' 'gnutls' 
+         'lame' 'libdrm' 
+         'libpulse' 'libsoxr' 
+         'libtheora' 'libvdpau' 'libwebp' 'libx11' 'libxcb' 'libxext' 'libxml2'
+         'libxv' 'openjpeg2' 'opus' 'v4l-utils'
+         'xz' 'zlib'
+         'libass.so' 'libfreetype.so' 'libva-drm.so' 'libva.so'
+         'libva-x11.so' 'libvorbisenc.so' 'libvorbis.so'
+         'libvpx.so' 'libx264.so' 'libx265.so')
+makedepends=('yasm')
+optdepends=('ladspa: LADSPA filters')
+provides=('libavcodec.so' 'libavdevice.so' 'libavfilter.so' 'libavformat.so'
+          'libavresample.so' 'libavutil.so' 'libpostproc.so' 'libswresample.so'
+          'libswscale.so')
+source=("https://ffmpeg.org/releases/ffmpeg-${pkgver}.tar.xz")
+sha256sums=('605f5c01c60db35d3b617a79cabb2c7032412be243554602eeed1b628125c0ee')
+
+build() {
+  cd ffmpeg-${pkgver}
+
+  ./configure \
+    --prefix='/usr' \
+    --disable-debug \
+    --disable-static \
+    --disable-stripping \
+    --enable-avresample \
+    --enable-fontconfig \
+    --enable-gmp \
+    --enable-gnutls \
+    --enable-gpl \
+    --enable-libass \
+    --enable-libdrm \
+    --enable-libfreetype \
+    --enable-libfribidi \
+    --enable-libmp3lame \
+    --enable-libopenjpeg \
+    --enable-libopus \
+    --enable-libpulse \
+    --enable-libsoxr \
+    --enable-libtheora \
+    --enable-libv4l2 \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-libwebp \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-libxcb \
+    --enable-libxml2 \
+    --disable-omx \
+    --enable-shared \
+    --enable-version3
+
+  make
+  make doc/ff{mpeg,play}.1
+}
+
+package() {
+  cd ffmpeg-${pkgver}
+  make DESTDIR="${pkgdir}" install install-man
+}
+
+# vim: ts=2 sw=2 et:
