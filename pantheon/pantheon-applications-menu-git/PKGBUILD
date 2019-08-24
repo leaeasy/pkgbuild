@@ -1,0 +1,51 @@
+# Maintainer: Maxime Gauduin <alucryd@archlinux.org>
+
+pkgname=pantheon-applications-menu
+pkgver=2.4.2~7~gd4c8c4a
+pkgrel=1
+pkgdesc='The Pantheon Application Menu'
+arch=('x86_64')
+url='https://github.com/elementary/applications-menu'
+license=('GPL3')
+groups=('pantheon-unstable')
+depends=('gdk-pixbuf2' 'glib2' 'glibc' 'gnome-menus' 'gtk3'
+         'json-glib' 'libgee' 'libsoup' 'plank'
+         'granite' 'switchboard' 'wingpanel' 'zeitgeist')
+makedepends=('cmake' 'git' 'granite' 'switchboard' 'vala'
+             'wingpanel' 'appstream')
+source=('pantheon-applications-menu::git+https://github.com/elementary/applications-menu.git')
+sha256sums=('SKIP')
+
+pkgver() {
+  cd pantheon-applications-menu
+  echo "$(git describe HEAD --tags | sed 's|-|~|g')"
+}
+
+prepare() {
+  cd pantheon-applications-menu
+
+  if [[ -d build ]]; then
+    rm -rf build
+  fi
+  mkdir build
+}
+
+build() {
+  cd pantheon-applications-menu/build
+
+  cmake .. \
+    -DCMAKE_BUILD_TYPE='Release' \
+    -DCMAKE_INSTALL_PREFIX='/usr' \
+    -DCMAKE_INSTALL_LIBDIR='/usr/lib' \
+    -DGSETTINGS_COMPILE='OFF' \
+    -DUSE_UNITY='OFF'
+  make
+}
+
+package() {
+  cd pantheon-applications-menu/build
+
+  make DESTDIR="${pkgdir}" install
+}
+
+# vim: ts=2 sw=2 et:

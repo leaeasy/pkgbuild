@@ -1,0 +1,13 @@
+diff --git a/src/MainWindow.vala b/src/MainWindow.vala
+index d28e65a..a51b0a2 100644
+--- a/src/MainWindow.vala
++++ b/src/MainWindow.vala
+@@ -1190,8 +1190,6 @@ namespace Terminal {
+             }
+ 
+             name_check_timeout_id = Timeout.add (50, () => {
+-                save_opened_terminals ();
+-
+                 if (!check_for_tabs_with_same_name ()) {
+                     return true;
+                 } else {

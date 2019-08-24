@@ -1,0 +1,95 @@
+From 722ba5417fc937bfd4137f6ff3859f3c6c50813b Mon Sep 17 00:00:00 2001
+From: leaeasy <leaeasy@gmail.com>
+Date: Thu, 17 May 2018 21:51:21 +0800
+Subject: [PATCH] manage dpms
+
+---
+ ....gnome.settings-daemon.plugins.power.gschema.xml.in |  5 +++++
+ plugins/power/gpm-common.c                             | 10 +++++++++-
+ plugins/power/gpm-common.h                             |  1 +
+ plugins/power/gsd-power-manager.c                      |  6 ++++++
+ 4 files changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in b/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in
+index 93c704e9..79a191a9 100644
+--- a/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in
++++ b/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in
+@@ -1,6 +1,11 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <schemalist>
+   <schema gettext-domain="@GETTEXT_PACKAGE@" id="org.gnome.settings-daemon.plugins.power" path="/org/gnome/settings-daemon/plugins/power/">
++    <key name="manage-dpms-defaults" type="b">
++      <default>false</default>
++      <summary>Reset X DPMS values</summary>
++      <description>Whether DPMS values will be adjusted by gnome-settings-daemon</description>
++    </key>
+     <key name="idle-brightness" type="i">
+       <default>30</default>
+       <summary>The brightness of the screen when idle</summary>
+diff --git a/plugins/power/gpm-common.c b/plugins/power/gpm-common.c
+index 97b104ac..adbe9fa0 100644
+--- a/plugins/power/gpm-common.c
++++ b/plugins/power/gpm-common.c
+@@ -302,6 +302,14 @@ disable_builtin_screensaver (gpointer unused)
+         return TRUE;
+ }
+ 
++gboolean
++manage_dpms (void)
++{
++        GSettings *settings;
++        settings = g_settings_new ("org.gnome.settings-daemon.plugins.power");
++        return g_settings_get_boolean (settings, "manage-dpms-defaults");
++}
++
+ guint
+ gsd_power_enable_screensaver_watchdog (void)
+ {
+@@ -312,7 +320,7 @@ gsd_power_enable_screensaver_watchdog (void)
+          * way. The defaults are now applied in Fedora 20 from
+          * being "0" by default to being "600" by default */
+         gdk_error_trap_push ();
+-        if (DPMSQueryExtension(GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), &dummy, &dummy))
++        if (manage_dpms () && DPMSQueryExtension(GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), &dummy, &dummy))
+                 DPMSSetTimeouts (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), 0, 0, 0);
+         gdk_error_trap_pop_ignored ();
+         id = g_timeout_add_seconds (XSCREENSAVER_WATCHDOG_TIMEOUT,
+diff --git a/plugins/power/gpm-common.h b/plugins/power/gpm-common.h
+index 251cd319..bdc88036 100644
+--- a/plugins/power/gpm-common.h
++++ b/plugins/power/gpm-common.h
+@@ -35,6 +35,7 @@ gboolean         gsd_power_is_hardware_a_vm             (void);
+ gboolean         gsd_power_is_hardware_a_tablet         (void);
+ guint            gsd_power_enable_screensaver_watchdog  (void);
+ void             reset_idletime                         (void);
++gboolean         manage_dpms                            (void);
+ 
+ /* Backlight helpers */
+ 
+diff --git a/plugins/power/gsd-power-manager.c b/plugins/power/gsd-power-manager.c
+index 82d81e96..9a9f2859 100644
+--- a/plugins/power/gsd-power-manager.c
++++ b/plugins/power/gsd-power-manager.c
+@@ -1030,6 +1030,9 @@ backlight_enable (GsdPowerManager *manager)
+         gboolean ret;
+         GError *error = NULL;
+ 
++        if (!(manage_dpms ()))
++                return;
++
+         iio_proxy_claim_light (manager, TRUE);
+         ret = gnome_rr_screen_set_dpms_mode (manager->priv->rr_screen,
+                                              GNOME_RR_DPMS_ON,
+@@ -1051,6 +1054,9 @@ backlight_disable (GsdPowerManager *manager)
+         gboolean ret;
+         GError *error = NULL;
+ 
++        if (!(manage_dpms ()))
++               return;
++
+         iio_proxy_claim_light (manager, FALSE);
+         ret = gnome_rr_screen_set_dpms_mode (manager->priv->rr_screen,
+                                              GNOME_RR_DPMS_OFF,
+-- 
+2.17.0
+

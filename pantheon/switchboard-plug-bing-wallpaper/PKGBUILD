@@ -1,0 +1,51 @@
+# Maintainer: Que Quotion <quequotion@bugmenot.com>
+# Contributor: Maxime Gauduin <alucryd@archlinux.org>
+
+pkgname=switchboard-plug-bing-wallpaper
+pkgver=0.0+r2.ade4a25
+pkgrel=1
+pkgdesc='Bing wallpaper plug for Switchboard'
+arch=('i686' 'x86_64')
+url='https://github.com/FranRodriguez/switchboard-plug-bing-wallpaper'
+license=('GPL3')
+groups=('pantheon-unstable')
+depends=('gconf' 'glib2' 'glibc' 'gtk3' 'libgee'
+         'libgranite.so' 'libswitchboard-2.0.so')
+makedepends=('cmake' 'vala')
+source=('switchboard-plug-bing-wallpaper::git+https://github.com/FranRodriguez/switchboard-plug-bing-wallpaper.git'
+    'FindVala.cmake'
+    'ValaPrecompile.cmake'
+    'ValaVersion.cmake'
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
+
+pkgver() {
+  cd switchboard-plug-bing-wallpaper
+  echo "0.0+r$(git rev-list --count HEAD).$(git rev-parse --short HEAD)"
+  mkdir cmake
+  cp ${srcdir}/*.cmake cmake
+}
+
+
+build() {
+  cd switchboard-plug-bing-wallpaper
+
+  if [[ -d build ]]; then
+    rm -rf build
+  fi
+  mkdir build && cd build
+
+  cmake .. \
+    -DCMAKE_BUILD_TYPE='Release' \
+    -DCMAKE_INSTALL_PREFIX='/usr' \
+    -DCMAKE_INSTALL_LIBDIR='/usr/lib'
+  make
+}
+
+package() {
+  cd switchboard-plug-bing-wallpaper/build
+
+  make DESTDIR="${pkgdir}" install
+}
+
+# vim: ts=2 sw=2 et:

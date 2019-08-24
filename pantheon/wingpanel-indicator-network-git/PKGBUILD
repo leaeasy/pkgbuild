@@ -1,0 +1,32 @@
+# Maintainer: Maxime Gauduin <alucryd@archlinux.org>
+
+pkgname=wingpanel-indicator-network
+pkgver=2.2.2
+pkgrel=1
+pkgdesc='Network indicator for Wingpanel'
+arch=('x86_64')
+url='https://github.com/elementary/wingpanel-indicator-network'
+license=('GPL3')
+groups=('pantheon-unstable')
+depends=('glib2' 'glibc' 'gtk3' 'libgee'
+         'libgranite.so' 'libwingpanel-2.0.so')
+makedepends=('cmake' 'git' 'granite' 'vala' 'wingpanel')
+provides=('wingpanel-indicator-network')
+conflicts=('wingpanel-indicator-network')
+replaces=('wingpanel-indicator-nztwork-bzr')
+source=('git+https://github.com/elementary/wingpanel-indicator-network.git')
+sha256sums=('SKIP')
+
+build() {
+  mkdir -p build
+  cd build
+  arch-meson ../wingpanel-indicator-network
+  ninja
+}
+
+package() {
+  cd build
+  DESTDIR="${pkgdir}" ninja install
+}
+
+# vim: ts=2 sw=2 et:

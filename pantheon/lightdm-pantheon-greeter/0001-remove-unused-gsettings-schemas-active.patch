@@ -1,0 +1,43 @@
+From 9627e713826eab732aae6e55b5c90c5fc3217ffd Mon Sep 17 00:00:00 2001
+From: leaeasy <leaeasy@gmail.com>
+Date: Tue, 5 Jun 2018 09:36:10 +0800
+Subject: [PATCH] remove unused gsettings schemas active
+
+---
+ src/SettingsDaemon.vala | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
+
+diff --git a/src/SettingsDaemon.vala b/src/SettingsDaemon.vala
+index 84d62c7..7811593 100644
+--- a/src/SettingsDaemon.vala
++++ b/src/SettingsDaemon.vala
+@@ -26,24 +26,15 @@ public class SettingsDaemon : Object {
+                               "org.gnome.settings-daemon.plugins.clipboard",
+                               "org.gnome.settings-daemon.plugins.font",
+                               "org.gnome.settings-daemon.plugins.gconf",
+-                              "org.gnome.settings-daemon.plugins.gsdwacom",
+-                              "org.gnome.settings-daemon.plugins.housekeeping",
+                               "org.gnome.settings-daemon.plugins.keybindings",
+                               "org.gnome.settings-daemon.plugins.keyboard",
+-                              "org.gnome.settings-daemon.plugins.media-keys",
+                               "org.gnome.settings-daemon.plugins.mouse",
+-                              "org.gnome.settings-daemon.plugins.print-notifications",
+-                              "org.gnome.settings-daemon.plugins.smartcard",
+-                              "org.gnome.settings-daemon.plugins.sound",
+-                              "org.gnome.settings-daemon.plugins.wacom" };
++                              "org.gnome.settings-daemon.plugins.sound" };
+ 
+         string[] enabled =  { "org.gnome.settings-daemon.plugins.a11y-keyboard",
+                               "org.gnome.settings-daemon.plugins.a11y-settings",
+-                              "org.gnome.settings-daemon.plugins.color",
+                               "org.gnome.settings-daemon.plugins.cursor",
+-                              "org.gnome.settings-daemon.plugins.power",
+-                              "org.gnome.settings-daemon.plugins.xrandr",
+-                              "org.gnome.settings-daemon.plugins.xsettings" };
++                              "org.gnome.settings-daemon.plugins.xrandr" };
+ 
+         foreach (var schema in disabled) {
+             set_plugin_enabled (schema, false);
+-- 
+2.17.1
+

@@ -1,0 +1,115 @@
+diff --git a/meson.build b/meson.build
+index a352d04f..746ff538 100644
+--- a/meson.build
++++ b/meson.build
+@@ -83,7 +83,6 @@ endif
+ add_project_arguments(common_flags + compiler_flags, language: 'c')
+ 
+ glib_dep = dependency('glib-2.0', version: '>= 2.56')
+-colord_dep = dependency('colord', version: '>= 1.0.2')
+ geocode_glib_dep = dependency('geocode-glib-1.0', version: '>= 3.10.0')
+ gio_dep = dependency('gio-2.0', version: '>= 2.53.0')
+ gio_unix_dep = dependency('gio-unix-2.0')
+@@ -91,7 +90,6 @@ gnome_desktop_dep = dependency('gnome-desktop-3.0', version: '>= 3.11.1')
+ gsettings_desktop_dep = dependency('gsettings-desktop-schemas', version: '>= 3.27.90')
+ gtk_dep = dependency('gtk+-3.0', version: '>= 3.15.3')
+ gtk_x11_dep = dependency('gtk+-x11-3.0')
+-gweather_dep = dependency('gweather-3.0', version: '>= 3.9.5')
+ lcms_dep = dependency('lcms2', version: '>= 2.2')
+ libcanberra_gtk_dep = dependency('libcanberra-gtk3')
+ libgeoclue_dep = dependency('libgeoclue-2.0', version: '>= 2.3.1')
+@@ -140,13 +138,14 @@ endif
+ config_h.set10('HAVE_WAYLAND', enable_wayland)
+ 
+ # wacom (disabled for s390/s390x and non Linux platforms)
+-enable_wacom = host_is_linux_not_s390
++enable_wacom = false
+ if enable_wacom
+   assert(enable_gudev, 'GUDev support is required for wacom support.')
+   libwacom_dep = dependency('libwacom', version: '>= 0.7')
+ endif
+ config_h.set10('HAVE_WACOM', enable_wacom)
+ 
++
+ # smartcard section
+ enable_smartcard = get_option('smartcard')
+ if enable_smartcard
+diff --git a/plugins/datetime/gsd-timezone-monitor.c b/plugins/datetime/gsd-timezone-monitor.c
+index ca3e6a7f..6c158f52 100644
+--- a/plugins/datetime/gsd-timezone-monitor.c
++++ b/plugins/datetime/gsd-timezone-monitor.c
+@@ -23,7 +23,6 @@
+ 
+ #include "timedated.h"
+ #include "tz.h"
+-#include "weather-tz.h"
+ 
+ #include <geoclue.h>
+ #include <geocode-glib/geocode-glib.h>
+@@ -50,7 +49,6 @@ typedef struct
+         GCancellable *geoclue_cancellable;
+ 
+         TzDB *tzdb;
+-        WeatherTzDB *weather_tzdb;
+         gchar *current_timezone;
+ 
+         GSettings *location_settings;
+@@ -185,10 +183,6 @@ find_timezone (GsdTimezoneMonitor *self,
+         locations = ptr_array_to_list (tz_get_locations (priv->tzdb));
+         g_return_val_if_fail (locations != NULL, NULL);
+ 
+-        /* ... and then add libgweather's locations as well */
+-        locations = g_list_concat (locations,
+-                                   weather_tz_db_get_locations (priv->weather_tzdb));
+-
+         /* Filter tz locations by country */
+         filtered = find_by_country (locations, country_code);
+         if (filtered != NULL) {
+@@ -387,7 +381,6 @@ gsd_timezone_monitor_finalize (GObject *obj)
+         g_clear_object (&priv->permission);
+         g_clear_pointer (&priv->current_timezone, g_free);
+         g_clear_pointer (&priv->tzdb, tz_db_free);
+-        g_clear_pointer (&priv->weather_tzdb, weather_tz_db_free);
+ 
+         g_clear_object (&priv->location_settings);
+ 
+@@ -460,7 +453,6 @@ gsd_timezone_monitor_init (GsdTimezoneMonitor *self)
+ 
+         priv->current_timezone = timedate1_dup_timezone (priv->dtm);
+         priv->tzdb = tz_load_db ();
+-        priv->weather_tzdb = weather_tz_db_new ();
+ 
+         priv->location_settings = g_settings_new ("org.gnome.system.location");
+         g_signal_connect_swapped (priv->location_settings, "changed::enabled",
+diff --git a/plugins/datetime/meson.build b/plugins/datetime/meson.build
+index ed2d433f..31e5f22a 100644
+--- a/plugins/datetime/meson.build
++++ b/plugins/datetime/meson.build
+@@ -8,7 +8,6 @@ sources = files(
+   'gsd-timezone-monitor.c',
+   'main.c',
+   'tz.c',
+-  'weather-tz.c'
+ )
+ 
+ sources += gnome.gdbus_codegen(
+@@ -19,7 +18,6 @@ sources += gnome.gdbus_codegen(
+ 
+ deps = plugins_deps + [
+   geocode_glib_dep,
+-  gweather_dep,
+   libgeoclue_dep,
+   libnotify_dep,
+   m_dep,
+diff --git a/plugins/meson.build b/plugins/meson.build
+index 3db69da7..15b55ef3 100644
+--- a/plugins/meson.build
++++ b/plugins/meson.build
+@@ -1,7 +1,6 @@
+ enabled_plugins = [
+   ['a11y-settings', 'A11ySettings'],
+   ['clipboard', 'Clipboard'],
+-  ['color', 'Color'],
+   ['datetime', 'Datetime'],
+   ['dummy', ''],
+   ['power', 'Power'],
