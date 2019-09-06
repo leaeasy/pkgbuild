@@ -1,7 +1,8 @@
 # $Id$
 # Maintainer: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
 
-pkgname=gnome-settings-daemon
+pkgname=gnome-settings-daemon-elementary
+_pkgname=gnome-settings-daemon
 pkgver=3.32.0
 pkgrel=1
 pkgdesc="GNOME Settings Daemon"
@@ -11,7 +12,10 @@ license=(GPL)
 depends=(dconf gnome-desktop gsettings-desktop-schemas libcanberra-pulse libnotify libsystemd
          pulseaudio pulseaudio-alsa upower librsvg geocode-glib geoclue2
          libgudev)
+provides=(gnome-settings-daemon)
+conflicts=(gnome-settings-daemon)
 makedepends=(libxslt docbook-xsl python git meson)
+
 groups=(gnome)
 _commit=9381b6c2be1ae0e58a4adb5375f59e6765dd0276
 source=("git+https://gitlab.gnome.org/GNOME/gnome-settings-daemon.git#commit=$_commit"
@@ -22,12 +26,12 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-settings-daemon.git#commit=$_c
 sha256sums=('SKIP' 'SKIP' 'SKIP' 'SKIP')
 
 pkgver() {
-  cd $pkgname
+  cd $_pkgname
   git describe --tags | sed 's/^GNOME_SETTINGS_DAEMON_//;s/_/./g;s/-/+/g'
 }
 
 prepare() {
-  cd $pkgname
+  cd $_pkgname
 
   git submodule init
   git config --local submodule.subprojects/gvc.url "$srcdir/libgnome-volume-control"
@@ -39,7 +43,7 @@ prepare() {
 build() {
 	meson --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
 		--libexecdir=/usr/lib/gnome-settings-daemon \
-		$pkgname build -Dcups=false -Dsmartcard=false  -Dwayland=false
+		$_pkgname build -Dcups=false -Dsmartcard=false  -Dwayland=false
   ninja -C build
 }
 

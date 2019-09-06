@@ -1,5 +1,5 @@
 pkgname=wingpanel
-pkgver=2.2.3
+pkgver=2.2.5~6~g584a372
 pkgrel=1
 pkgdesc='Stylish top panel that holds indicators and spawns an application launcher'
 arch=('x86_64')
