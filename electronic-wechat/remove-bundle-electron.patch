@@ -1,0 +1,20 @@
+diff --git a/package.json b/package.json
+index 4ff886b..568a8a2 100755
+--- a/package.json
++++ b/package.json
+@@ -40,7 +40,6 @@
+   "originalhomepage": "https://github.com/geeeeeeeeek/wechat-electron/",
+   "dependencies": {
+     "electron-localshortcut": "^3.1.0",
+-    "electron-packager": "^12.1.1",
+     "emojione": "^3.1.4",
+     "is-xfce": "^2.0.0",
+     "nconf": "^0.10.0",
+@@ -48,7 +47,6 @@
+   },
+   "devDependencies": {
+     "babel-eslint": "^8.2.3",
+-    "electron": "4.0.5",
+     "eslint": "^4.19.1",
+     "eslint-config-airbnb": "^16.1.0",
+     "eslint-plugin-import": "^2.2.0",

@@ -1,0 +1,13 @@
+diff --git a/src/configuration.js b/src/configuration.js
+index 304e95e..a81e863 100755
+--- a/src/configuration.js
++++ b/src/configuration.js
+@@ -5,7 +5,7 @@ function getUserHome() {
+ }
+ 
+ const nconf = require('nconf').file({
+-  file: `${getUserHome()}/.ew.json`,
++  file: `${getUserHome()}/.config/electronic-wechat/config.json`,
+ });
+ 
+ function saveSettings(settingKey, settingValue) {
